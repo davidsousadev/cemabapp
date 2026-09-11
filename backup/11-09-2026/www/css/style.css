@@ -1,0 +1,286 @@
+/* ============================================================
+   RESET
+============================================================ */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ============================================================
+   BODY
+============================================================ */
+
+html,
+body {
+
+    width: 100%;
+    height: 100%;
+
+}
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f5f5f5;
+
+    color: #222;
+
+}
+
+
+/* ============================================================
+   CONTEÚDO
+============================================================ */
+
+.app-content {
+
+    min-height: 100vh;
+
+    padding-bottom: 80px;
+
+}
+
+
+/* ============================================================
+   TELAS
+============================================================ */
+
+.screen {
+
+    display: none;
+
+    min-height: calc(100vh - 80px);
+
+}
+
+.screen.active {
+
+    display: block;
+
+}
+
+
+/* ============================================================
+   CABEÇALHO
+============================================================ */
+
+.screen-header {
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e5e5e5;
+
+}
+
+.screen-header h1 {
+
+    font-size: 24px;
+
+}
+
+
+/* ============================================================
+   CORPO
+============================================================ */
+
+.screen-body {
+
+    padding: 20px;
+
+}
+
+
+/* ============================================================
+   NAVEGAÇÃO INFERIOR
+============================================================ */
+
+.bottom-navigation {
+
+    position: fixed;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 72px;
+
+    display: flex;
+
+    background: #ffffff;
+
+    border-top: 1px solid #ddd;
+
+    z-index: 1000;
+
+}
+
+
+/* ============================================================
+   ITEM DA NAVEGAÇÃO
+============================================================ */
+
+.navigation-item {
+
+    position: relative;
+
+    flex: 1;
+
+    border: none;
+
+    background: transparent;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    cursor: pointer;
+
+    color: #777;
+
+}
+
+
+/* ============================================================
+   ITEM ATIVO
+============================================================ */
+
+.navigation-item.active {
+
+    color: #000;
+
+}
+
+
+/* ============================================================
+   ÍCONE
+============================================================ */
+
+.navigation-icon {
+
+    font-size: 22px;
+
+}
+
+
+/* ============================================================
+   TEXTO
+============================================================ */
+
+.navigation-label {
+
+    font-size: 12px;
+
+}
+
+
+/* ============================================================
+   BADGE
+============================================================ */
+
+.notification-badge {
+
+    position: absolute;
+
+    top: 8px;
+    right: calc(50% - 28px);
+
+    min-width: 18px;
+
+    height: 18px;
+
+    padding: 0 5px;
+
+    border-radius: 9px;
+
+    background: #e53935;
+
+    color: white;
+
+    font-size: 10px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+/* ============================================================
+   ESCONDER BADGE
+============================================================ */
+
+.notification-badge.hidden {
+
+    display: none;
+
+}
+
+
+/* ============================================================
+   MENSAGEM VAZIA
+============================================================ */
+
+.empty-message {
+
+    text-align: center;
+
+    padding: 40px 20px;
+
+    color: #888;
+
+}
+
+/* Telas ocultas por padrão */
+.screen {
+    display: none;
+    min-height: calc(100vh - 80px);
+}
+
+/* Tela ativa aparece */
+.screen.active {
+    display: block;
+}
+
+/* Botão inativo */
+.navigation-item {
+    color: #777;
+}
+
+/* Botão ativo destaca */
+.navigation-item.active {
+    color: #000;
+    font-weight: bold;
+}
+
+/* Telas ficam OCULTAS por padrão */
+.screen {
+    display: none !important;
+}
+
+/* Tela com .active FICA VISÍVEL */
+.screen.active {
+    display: block !important;
+}
+
+/* Botão ativo destacado */
+.navigation-item.active {
+    color: #007AFF !important;
+    font-weight: bold;
+}

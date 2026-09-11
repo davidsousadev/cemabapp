@@ -1,0 +1,286 @@
+{
+    "project_state": {
+        "snapshot_date": "2026-09-07",
+        "language": "pt-BR",
+        "project_type": "Apache Cordova Android application with Firebase Cloud Messaging",
+        "project_name": "Push Notification",
+        "project_path": "~/Documentos/apps/pushcordova",
+        "version": "1.0.0",
+        "current_phase": "modularizacao_do_javascript",
+        "goal": "Aplicativo Cordova que recebe notificacoes push via FCM, cadastra o token FCM no backend FastAPI, armazena notificacoes localmente em SQLite e disponibiliza uma aba de historico de notificacoes."
+    },
+    "environment": {
+        "os": "Ubuntu Linux",
+        "node": "v22.14.0",
+        "java": "OpenJDK 21.0.12",
+        "android_home": "/home/david/Android/Sdk",
+        "android_sdk_root": "/home/david/Android/Sdk",
+        "cordova_android": "15.1.0",
+        "cordova_browser": "7.0.0",
+        "sdkmanager": "/home/david/Android/Sdk/cmdline-tools/22.0/bin/sdkmanager"
+    },
+    "cordova_plugins": {
+        "cordova-plugin-clipboard": "1.0.0",
+        "cordova-plugin-firebase-messaging": "8.0.1",
+        "cordova-support-android-plugin": "2.0.4",
+        "cordova-plugin-browsersync-gen2": "installed_and_working_for_browser_live_reload"
+    },
+    "firebase": {
+        "plugin": "cordova-plugin-firebase-messaging",
+        "plugin_version": "8.0.1",
+        "api_namespace": "cordova.plugins.firebase.messaging",
+        "google_services_file": "google-services.json",
+        "config_xml_resource": {
+            "src": "google-services.json",
+            "target": "app/google-services.json"
+        },
+        "apis_in_use": [
+            "getToken()",
+            "requestPermission({forceShow:false})",
+            "onTokenRefresh(callback)",
+            "onMessage(callback)"
+        ],
+        "important_note": "Nao usar FCMPlugin ou APIs do FirebaseX, pois o projeto utiliza cordova-plugin-firebase-messaging 8.0.1."
+    },
+    "config_xml_current": {
+        "widget_id": "br.com.davidsousadev",
+        "version": "1.0.0",
+        "name": "Push Notification",
+        "content": "index.html",
+        "android_resource_file": "google-services.json -> app/google-services.json"
+    },
+    "backend": {
+        "base_url": "https://apisme.vercel.app",
+        "endpoint": "POST https://apisme.vercel.app/users/cadastrar",
+        "payload": {
+            "token": "FCM_TOKEN"
+        },
+        "responses": {
+            "201": "Token cadastrado com sucesso.",
+            "200": "Token Já cadastrado"
+        },
+        "purpose": "Registrar no backend o token FCM obtido pelo dispositivo."
+    },
+    "current_application_flow": {
+        "startup": [
+            "deviceready",
+            "verificar disponibilidade do Firebase Messaging",
+            "solicitar permissao de notificacoes",
+            "obter token FCM",
+            "enviar token para /users/cadastrar"
+        ],
+        "token_refresh": [
+            "Firebase dispara onTokenRefresh",
+            "obter novo token",
+            "enviar novo token para API"
+        ],
+        "foreground_current": [
+            "FCM entrega mensagem ao onMessage",
+            "mensagem e exibida no console.log",
+            "nenhum alert deve ser utilizado",
+            "nenhuma notificacao visual nativa e criada ainda"
+        ]
+    },
+    "alert_status": {
+        "removed": true,
+        "must_not_reintroduce": true,
+        "reason": "O objetivo e substituir o alert por uma notificacao push real do Android."
+    },
+    "current_index_js": "O arquivo atual antes da modularizacao continha a inicializacao do Cordova, verificacao do Firebase Messaging, requestPermission, getToken, onTokenRefresh, onMessage e envio do token via fetch para /users/cadastrar.",
+    "modularization": {
+        "status": "Planejada/iniciada; a estrutura foi definida, mas deve ser considerada implementada somente depois de os arquivos serem efetivamente criados e testados.",
+        "target_structure": {
+            "www/js/index.js": "Ponto de entrada e orquestrador da aplicacao.",
+            "www/js/config.js": "Configuracoes centralizadas.",
+            "www/js/api.js": "Comunicacao HTTP com o FastAPI.",
+            "www/js/firebase.js": "Integracao com Firebase Messaging.",
+            "www/js/services/database-service.js": "Futuro servico SQLite.",
+            "www/js/services/notification-service.js": "Futura logica de notificacoes.",
+            "www/js/pages/notifications-page.js": "Futura aba de notificacoes.",
+            "www/js/utils/dom.js": "Futuros utilitarios DOM."
+        },
+        "script_order": [
+            "cordova.js",
+            "js/config.js",
+            "js/api.js",
+            "js/firebase.js",
+            "js/index.js"
+        ]
+    },
+    "modular_files_target": {
+        "config.js": {
+            "purpose": "Centralizar configuracoes.",
+            "content": "const APP_CONFIG = { API_URL: 'https://apisme.vercel.app', TOKEN_ENDPOINT: '/users/cadastrar' };"
+        },
+        "api.js": {
+            "purpose": "Responsavel pelo POST do token FCM para a API.",
+            "function": "enviarTokenParaAPI(token)",
+            "success_codes": [
+                200,
+                201
+            ]
+        },
+        "firebase.js": {
+            "purpose": "Centralizar Firebase Messaging.",
+            "functions": [
+                "firebaseDisponivel()",
+                "verificarNotificacoes()",
+                "obterToken()",
+                "iniciarFirebase()"
+            ],
+            "foreground_handler": "onMessage recebe e registra os dados no console. Posteriormente devera chamar o servico de notificacoes."
+        },
+        "index.js": {
+            "purpose": "Somente inicializar e orquestrar a aplicacao.",
+            "flow": [
+                "deviceready",
+                "iniciarFirebase()",
+                "verificarNotificacoes()",
+                "obterToken()"
+            ]
+        }
+    },
+    "html_expected_elements": [
+        "notificationStatus",
+        "tokenStatus",
+        "serverStatus"
+    ],
+    "notification_final_requirements": {
+        "foreground": "Mesmo com o aplicativo aberto, a mensagem FCM deve gerar uma notificacao push real do Android. Nao usar alert.",
+        "background": "O Android deve exibir a notificacao push normalmente.",
+        "closed": "O Android deve exibir a notificacao push quando o aplicativo estiver fechado.",
+        "storage": "Toda notificacao recebida deve ser armazenada localmente no dispositivo usando SQLite.",
+        "click": "Ao tocar na notificacao, o aplicativo deve abrir e direcionar o usuario para a aba de notificacoes.",
+        "history": "A aba de notificacoes deve apresentar o historico armazenado no SQLite.",
+        "read_unread": "As notificacoes deverao possuir estado lida/nao lida.",
+        "counter": "Futuramente sera implementado contador de notificacoes nao lidas.",
+        "delete": "Futuramente sera possivel excluir notificacoes.",
+        "offline": "O historico deve continuar disponivel sem internet."
+    },
+    "sqlite": {
+        "status": "Ainda nao implementado.",
+        "planned_table": "notificacoes",
+        "planned_columns": [
+            "id",
+            "tipo",
+            "titulo",
+            "mensagem",
+            "dados",
+            "data_hora",
+            "lida"
+        ],
+        "planned_operations": [
+            "criar banco",
+            "criar tabela",
+            "salvar notificacao",
+            "listar notificacoes",
+            "buscar notificacao por id",
+            "marcar como lida",
+            "marcar todas como lidas",
+            "excluir notificacao",
+            "contar nao lidas"
+        ]
+    },
+    "fcm_payload_expected": {
+        "notification": {
+            "title": "Promocao Exclusiva 🚀",
+            "body": "Produto em promocao! ID {id_mensagem}"
+        },
+        "data": {
+            "tipo": "promocao",
+            "id_mensagem": "{id_mensagem}"
+        },
+        "android": {
+            "priority": "high",
+            "notification": {
+                "sound": "default",
+                "color": "#0000FF",
+                "channel_id": "mensagens_importantes",
+                "click_action": "CHAT_ACTIVITY"
+            }
+        }
+    },
+    "desired_architecture": {
+        "FCM": "Recebe mensagens.",
+        "notification_service": "Processa a mensagem, salva no SQLite e cria notificacao local/nativa quando necessario.",
+        "database_service": "Responsavel exclusivamente pelo SQLite.",
+        "api_service": "Responsavel pelas chamadas ao FastAPI.",
+        "notifications_page": "Responsavel exclusivamente pela interface da aba de notificacoes.",
+        "index": "Responsavel somente pela inicializacao/orquestracao."
+    },
+    "future_flow": {
+        "foreground": [
+            "FCM",
+            "onMessage",
+            "notification-service",
+            "SQLite",
+            "notificacao push nativa/local",
+            "usuario toca",
+            "abre aba Notificacoes"
+        ],
+        "background_or_closed": [
+            "FCM",
+            "Android exibe push",
+            "usuario toca",
+            "aplicativo abre",
+            "aba Notificacoes",
+            "historico e carregado do SQLite"
+        ]
+    },
+    "known_build_history": {
+        "gradlew_eacces": {
+            "error": "platforms/android/tools/gradlew EACCES",
+            "fix": "chmod +x platforms/android/tools/gradlew"
+        },
+        "missing_build_tools": {
+            "error": "No installed build tools found. Please install Android build tools version 34.0.0.",
+            "command": "/home/david/Android/Sdk/cmdline-tools/22.0/bin/sdkmanager \"build-tools;34.0.0\"",
+            "verification": "ls ~/Android/Sdk/build-tools/34.0.0"
+        }
+    },
+    "live_reload": {
+        "plugin": "cordova-plugin-browsersync-gen2",
+        "command": "cordova run browser --live-reload",
+        "status": "Funcionando.",
+        "old_plugin": "cordova-plugin-browsersync",
+        "old_plugin_problem": "Falhou por uso de requireCordovaModule('q') depreciado."
+    },
+    "development_rules": [
+        "Nao apagar funcionalidades que ja funcionam sem necessidade.",
+        "Manter o cadastro do token no endpoint /users/cadastrar.",
+        "Manter cordova-plugin-firebase-messaging 8.0.1.",
+        "Usar cordova.plugins.firebase.messaging.",
+        "Nao reintroduzir alert() para notificacoes.",
+        "Modularizar antes de adicionar SQLite e push local.",
+        "Testar cada etapa antes de avancar.",
+        "O usuario prefere instrucoes praticas e comandos completos.",
+        "Responder em portugues do Brasil."
+    ],
+    "next_steps": [
+        "Criar e testar config.js.",
+        "Criar e testar api.js.",
+        "Criar e testar firebase.js.",
+        "Reduzir index.js para o papel de orquestrador.",
+        "Atualizar index.html com a ordem correta dos scripts.",
+        "Testar obtencao do token FCM.",
+        "Testar POST para /users/cadastrar.",
+        "Instalar/configurar SQLite.",
+        "Criar database-service.js.",
+        "Criar notification-service.js.",
+        "Implementar push nativo/local no foreground.",
+        "Implementar tratamento de clique da notificacao.",
+        "Criar notifications-page.js.",
+        "Criar aba de notificacoes.",
+        "Implementar lida/nao lida.",
+        "Implementar contador.",
+        "Implementar exclusao.",
+        "Testar foreground, background e aplicativo fechado."
+    ],
+    "important_context_for_next_model": {
+        "current_user_request": "O usuario quer continuar a modularizacao do projeto antes de implementar SQLite e notificacoes completas.",
+        "critical_constraint": "Nao destruir o que ja funciona.",
+        "critical_firebase_constraint": "O projeto usa cordova-plugin-firebase-messaging 8.0.1, nao FirebaseX.",
+        "critical_notification_constraint": "alert foi removido deliberadamente.",
+        "final_product_goal": "Notificacoes push reais, persistidas em SQLite, com historico acessivel por uma aba de notificacoes."
+    }
+}
