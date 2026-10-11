@@ -1,36 +1,121 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>FCM Cordova</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#123c32">
+    <title>CEMAB App</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="brand-mark" aria-hidden="true">C</div>
+            <div class="brand-copy">
+                <span class="eyebrow">CENTRO EDUCA MAIS</span>
+                <h1>CEMAB <span>App</span></h1>
+            </div>
+            <span class="header-status" aria-label="Aplicativo escolar">Família</span>
+        </header>
 
-    <h1>FCM Cordova</h1>
+        <main class="app-content">
+            <section class="screen active" data-screen="inicio" id="screen-inicio">
+                <div class="welcome-panel">
+                    <span class="eyebrow light">ESCOLA E FAMÍLIA CONECTADAS</span>
+                    <h2>Olá!<br>Bem-vindo ao CEMAB App.</h2>
+                    <p>Acompanhe os avisos escolares do aluno diretamente no seu celular.</p>
+                </div>
 
-    <p id="notificationStatus">
-        Verificando notificações...
-    </p>
+                <section class="content-section">
+                    <div class="section-heading">
+                        <div>
+                            <span class="eyebrow">VISÃO GERAL</span>
+                            <h2>Seu dispositivo</h2>
+                        </div>
+                        <span class="status-dot" aria-hidden="true"></span>
+                    </div>
+                    <article class="status-card">
+                        <div class="status-icon">◉</div>
+                        <div class="status-copy">
+                            <h3>Notificações</h3>
+                            <p id="notificationStatus" role="status">Verificando permissões...</p>
+                        </div>
+                    </article>
+                    <article class="status-card">
+                        <div class="status-icon">⌁</div>
+                        <div class="status-copy">
+                            <h3>Dispositivo</h3>
+                            <p id="tokenStatus" role="status">Aguardando token FCM...</p>
+                        </div>
+                    </article>
+                    <article class="status-card">
+                        <div class="status-icon">↗</div>
+                        <div class="status-copy">
+                            <h3>Conexão com a escola</h3>
+                            <p id="serverStatus" role="status">Aguardando comunicação com o servidor...</p>
+                        </div>
+                    </article>
+                    <button class="primary-button button-spaced" type="button" data-go-page="aluno">Vincular aluno <span>→</span></button>
+                </section>
+            </section>
 
-    <p id="tokenStatus">
-        Aguardando token FCM...
-    </p>
+            <section class="screen" data-screen="aluno" id="screen-aluno">
+                <div class="page-intro">
+                    <span class="eyebrow">ÁREA DO RESPONSÁVEL</span>
+                    <h2 id="studentPageTitle">Vincular aluno</h2>
+                    <p id="studentPageDescription">Informe os dados conforme o cadastro da escola para associar o aluno a este dispositivo.</p>
+                </div>
 
-    <p id="serverStatus">
-        Aguardando comunicação com o servidor...
-    </p>
+                <div id="studentFormPanel" class="form-card">
+                    <div class="form-card-icon" aria-hidden="true">♧</div>
+                    <h3>Dados do aluno</h3>
+                    <p class="form-help">A matrícula e o nome completo serão conferidos pela API da escola.</p>
+                    <form id="studentLinkForm" novalidate>
+                        <label for="studentEnrollment">Matrícula</label>
+                        <input id="studentEnrollment" name="matricula" type="text" inputmode="numeric" autocomplete="off" maxlength="40" placeholder="Digite a matrícula" required>
+                        <label for="studentFullName">Nome completo do aluno</label>
+                        <input id="studentFullName" name="nome_completo" type="text" autocomplete="name" maxlength="160" placeholder="Nome conforme o cadastro escolar" required>
+                        <p id="studentFormMessage" class="form-message" role="status" aria-live="polite"></p>
+                        <button id="studentSubmitButton" class="primary-button" type="submit">Verificar e vincular <span>→</span></button>
+                    </form>
+                    <p class="privacy-note"><span aria-hidden="true">🔒</span> Os dados só serão salvos após a confirmação da API.</p>
+                </div>
+
+                <div id="studentLinkedPanel" class="linked-card" hidden>
+                    <div class="linked-top">
+                        <div class="linked-avatar" aria-hidden="true">✓</div>
+                        <div><span class="eyebrow">VÍNCULO NESTE DISPOSITIVO</span><h3>Aluno vinculado</h3></div>
+                    </div>
+                    <div class="linked-detail"><span>Nome completo</span><strong id="linkedStudentName"></strong></div>
+                    <div class="linked-detail"><span>Matrícula</span><strong id="linkedStudentEnrollment"></strong></div>
+                    <p class="linked-footnote">Este vínculo está salvo neste dispositivo.</p>
+                    <button id="unlinkStudentButton" class="secondary-button" type="button">Desvincular aluno</button>
+                    <p id="unlinkMessage" class="form-message" role="status" aria-live="polite"></p>
+                </div>
+
+                <div class="help-note">
+                    <strong>Precisa de ajuda?</strong>
+                    <p>Confira se a matrícula e o nome foram digitados exatamente como constam no cadastro escolar.</p>
+                </div>
+            </section>
+        </main>
+
+        <nav class="bottom-navigation" aria-label="Navegação principal">
+            <button class="navigation-item active" type="button" data-page="inicio" aria-current="page">
+                <span class="navigation-icon" aria-hidden="true">⌂</span><span class="navigation-label">Início</span>
+            </button>
+            <button class="navigation-item" type="button" data-page="aluno">
+                <span class="navigation-icon" aria-hidden="true">♧</span><span class="navigation-label">Aluno</span>
+            </button>
+        </nav>
+    </div>
 
     <script src="cordova.js"></script>
-    
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
     <script src="js/firebase.js"></script>
+    <script src="js/navegation.js"></script>
+    <script src="js/aluno.js"></script>
     <script src="js/index.js"></script>
-
 </body>
-
 </html>
