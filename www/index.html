@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#123c32">
-    <title>CEMAB App</title>
+    <meta name="description" content="CEMAB: informações e notificações escolares para as famílias.">
+    <title>CEMAB</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div class="app-shell">
         <header class="app-header">
@@ -15,97 +18,169 @@
                 <span class="eyebrow">CENTRO EDUCA MAIS</span>
                 <h1>CEMAB <span>App</span></h1>
             </div>
-            <span class="header-status" aria-label="Aplicativo escolar">Família</span>
+            <span class="header-status">Família</span>
         </header>
 
+        <div id="appToast" class="app-toast" role="status" aria-live="polite" hidden>
+            <div class="toast-symbol" aria-hidden="true">✓</div>
+            <div class="toast-copy"><strong id="toastTitle">Nova notificação</strong><span id="toastMessage"></span>
+            </div>
+            <button id="toastOpenButton" type="button">Ver</button>
+            <button id="toastCloseButton" class="toast-close" type="button" aria-label="Fechar aviso">×</button>
+        </div>
+
         <main class="app-content">
-            <section class="screen active" data-screen="inicio" id="screen-inicio">
+            <!-- Home, status técnico e registro do token são tratados em segundo plano. -->
+            <section class="screen" data-screen="inicio" id="screen-inicio">
                 <div class="welcome-panel">
                     <span class="eyebrow light">ESCOLA E FAMÍLIA CONECTADAS</span>
-                    <h2>Olá!<br>Bem-vindo ao CEMAB App.</h2>
-                    <p>Acompanhe os avisos escolares do aluno diretamente no seu celular.</p>
+                    <h2 id="homeGreeting">Bem-vindo ao CEMAB.</h2>
+                    <p id="homeDescription">Acompanhe os avisos da escola e receba informações sobre a presença do
+                        aluno.</p>
                 </div>
 
                 <section class="content-section">
                     <div class="section-heading">
                         <div>
-                            <span class="eyebrow">VISÃO GERAL</span>
-                            <h2>Seu dispositivo</h2>
+                            <span class="eyebrow">ACOMPANHAMENTO ESCOLAR</span>
+                            <h2>Seu espaço</h2>
                         </div>
-                        <span class="status-dot" aria-hidden="true"></span>
+                        <span class="status-pill"><span class="status-pill-dot"></span>Área da família</span>
                     </div>
-                    <article class="status-card">
-                        <div class="status-icon">◉</div>
-                        <div class="status-copy">
-                            <h3>Notificações</h3>
-                            <p id="notificationStatus" role="status">Verificando permissões...</p>
-                        </div>
-                    </article>
-                    <article class="status-card">
-                        <div class="status-icon">⌁</div>
-                        <div class="status-copy">
-                            <h3>Dispositivo</h3>
-                            <p id="tokenStatus" role="status">Aguardando token FCM...</p>
-                        </div>
-                    </article>
-                    <article class="status-card">
-                        <div class="status-icon">↗</div>
-                        <div class="status-copy">
-                            <h3>Conexão com a escola</h3>
-                            <p id="serverStatus" role="status">Aguardando comunicação com o servidor...</p>
-                        </div>
-                    </article>
-                    <button class="primary-button button-spaced" type="button" data-go-page="aluno">Vincular aluno <span>→</span></button>
+
+                    <button class="feature-card" type="button" data-go-page="notificacoes">
+                        <span class="feature-icon notification-feature-icon" aria-hidden="true">🔔</span>
+                        <span class="feature-copy">
+                            <strong>Notificações</strong>
+                            <span id="homeNotificationSummary">As atualizações da escola aparecerão aqui.</span>
+                        </span>
+                        <span class="feature-arrow" aria-hidden="true">›</span>
+                    </button>
+
+                    <button class="feature-card" type="button" data-go-page="aluno">
+                        <span class="feature-icon student-feature-icon" aria-hidden="true">👤</span>
+                        <span class="feature-copy">
+                            <strong>Aluno vinculado</strong>
+                            <span id="homeStudentSummary">Confira os dados do aluno associado a este dispositivo.</span>
+                        </span>
+                        <span class="feature-arrow" aria-hidden="true">›</span>
+                    </button>
+
+                    <div class="home-latest" id="homeLatestCard" hidden>
+                        <div class="home-latest-heading"><span class="eyebrow">MAIS RECENTE</span><button type="button"
+                                data-go-page="notificacoes">Ver todas</button></div>
+                        <button id="homeLatestButton" class="latest-notification" type="button">
+                            <span class="latest-indicator" aria-hidden="true"></span>
+                            <span class="latest-copy"><strong id="homeLatestTitle"></strong><span
+                                    id="homeLatestBody"></span><small id="homeLatestDate"></small></span>
+                            <span class="feature-arrow" aria-hidden="true">›</span>
+                        </button>
+                    </div>
                 </section>
             </section>
 
-            <section class="screen" data-screen="aluno" id="screen-aluno">
+            <!-- Quando não houver vínculo, esta tela funciona como entrada/login. -->
+            <section class="screen active" data-screen="aluno" id="screen-aluno">
                 <div class="page-intro">
                     <span class="eyebrow">ÁREA DO RESPONSÁVEL</span>
                     <h2 id="studentPageTitle">Vincular aluno</h2>
-                    <p id="studentPageDescription">Informe os dados conforme o cadastro da escola para associar o aluno a este dispositivo.</p>
+                    <p id="studentPageDescription">Informe os dados conforme o cadastro escolar para acessar o CEMAB.
+                    </p>
                 </div>
 
                 <div id="studentFormPanel" class="form-card">
-                    <div class="form-card-icon" aria-hidden="true">♧</div>
-                    <h3>Dados do aluno</h3>
-                    <p class="form-help">A matrícula e o nome completo serão conferidos pela API da escola.</p>
+                    <div class="form-card-icon" aria-hidden="true">👤</div>
+                    <h3>Identificação do aluno</h3>
+                    <p class="form-help">A matrícula e o nome completo serão conferidos com o cadastro da escola.</p>
                     <form id="studentLinkForm" novalidate>
                         <label for="studentEnrollment">Matrícula</label>
-                        <input id="studentEnrollment" name="matricula" type="text" inputmode="numeric" autocomplete="off" maxlength="40" placeholder="Digite a matrícula" required>
+                        <input id="studentEnrollment" name="matricula" type="text" inputmode="numeric"
+                            autocomplete="off" maxlength="40" placeholder="Ex.: 24.154.518" required>
                         <label for="studentFullName">Nome completo do aluno</label>
-                        <input id="studentFullName" name="nome_completo" type="text" autocomplete="name" maxlength="160" placeholder="Nome conforme o cadastro escolar" required>
+                        <input id="studentFullName" name="nome_completo" type="text" autocomplete="name" maxlength="160"
+                            placeholder="Digite como consta no cadastro" required>
                         <p id="studentFormMessage" class="form-message" role="status" aria-live="polite"></p>
-                        <button id="studentSubmitButton" class="primary-button" type="submit">Verificar e vincular <span>→</span></button>
+                        <button id="studentSubmitButton" class="primary-button" type="submit">Confirmar e continuar
+                            <span>→</span></button>
                     </form>
-                    <p class="privacy-note"><span aria-hidden="true">🔒</span> Os dados só serão salvos após a confirmação da API.</p>
+                    <p class="privacy-note"><span aria-hidden="true">🔒</span> O acesso só é liberado após a validação
+                        dos dados pela escola.</p>
                 </div>
 
                 <div id="studentLinkedPanel" class="linked-card" hidden>
                     <div class="linked-top">
                         <div class="linked-avatar" aria-hidden="true">✓</div>
-                        <div><span class="eyebrow">VÍNCULO NESTE DISPOSITIVO</span><h3>Aluno vinculado</h3></div>
+                        <div><span class="eyebrow">VÍNCULO ATIVO</span>
+                            <h3>Aluno vinculado</h3>
+                        </div>
                     </div>
                     <div class="linked-detail"><span>Nome completo</span><strong id="linkedStudentName"></strong></div>
-                    <div class="linked-detail"><span>Matrícula</span><strong id="linkedStudentEnrollment"></strong></div>
-                    <p class="linked-footnote">Este vínculo está salvo neste dispositivo.</p>
-                    <button id="unlinkStudentButton" class="secondary-button" type="button">Desvincular aluno</button>
+                    <div class="linked-detail"><span>Matrícula</span><strong id="linkedStudentEnrollment"></strong>
+                    </div>
+                    <p class="linked-footnote">Este dispositivo está associado a este aluno para receber notificações
+                        escolares.</p>
+                    <button id="unlinkStudentButton" class="secondary-button" type="button">Sair e desvincular
+                        aluno</button>
                     <p id="unlinkMessage" class="form-message" role="status" aria-live="polite"></p>
                 </div>
 
-                <div class="help-note">
+                <div class="help-note" id="studentHelpNote">
                     <strong>Precisa de ajuda?</strong>
-                    <p>Confira se a matrícula e o nome foram digitados exatamente como constam no cadastro escolar.</p>
+                    <p>Confira a matrícula e o nome completo conforme o cadastro escolar ou procure a secretaria da
+                        escola.</p>
                 </div>
+            </section>
+
+            <section class="screen" data-screen="notificacoes" id="screen-notificacoes">
+                <div class="page-intro notifications-intro">
+                    <span class="eyebrow">AVISOS E ATUALIZAÇÕES</span>
+                    <h2>Notificações</h2>
+                    <p>Acompanhe o histórico de presença e os avisos recebidos da escola.</p>
+                </div>
+                <div class="notification-summary-row">
+                    <span id="notificationCountLabel">Seu histórico</span>
+                    <button id="refreshNotificationsButton" class="text-button" type="button">Atualizar</button>
+                </div>
+                <div id="notificationList" class="notification-list" aria-live="polite"></div>
+                <div id="notificationEmptyState" class="empty-state" hidden>
+                    <div class="empty-icon" aria-hidden="true">🔔</div>
+                    <h3>Nenhuma notificação ainda</h3>
+                    <p>Quando a escola enviar um aviso ou registrar uma presença, ele aparecerá aqui.</p>
+                </div>
+                <p id="notificationSyncMessage" class="sync-message" role="status" aria-live="polite"></p>
+            </section>
+
+            <section class="screen" data-screen="detalhe" id="screen-detalhe">
+                <div class="page-intro detail-intro">
+                    <button class="back-button" type="button" data-go-page="notificacoes"><span
+                            aria-hidden="true">←</span> Voltar às notificações</button>
+                    <span class="eyebrow">DETALHES DO AVISO</span>
+                    <h2 id="detailTitle">Notificação</h2>
+                    <p id="detailReceivedAt" class="detail-date"></p>
+                </div>
+                <article class="detail-card">
+                    <div class="detail-status"><span aria-hidden="true">✓</span> Informação da escola</div>
+                    <p id="detailMessage" class="detail-message"></p>
+                    <div class="detail-data-row"><span>Aluno</span><strong id="detailStudentName">—</strong></div>
+                    <div class="detail-data-row"><span>Matrícula</span><strong id="detailEnrollment">—</strong></div>
+                    <div class="detail-data-row"><span>Horário aproximado do reconhecimento</span><strong
+                            id="detailAccessTime">—</strong></div>
+                    <p class="detail-footnote">O horário apresentado depende dos dados enviados pelo sistema de
+                        reconhecimento facial da escola.</p>
+                </article>
             </section>
         </main>
 
-        <nav class="bottom-navigation" aria-label="Navegação principal">
+        <nav id="bottomNavigation" class="bottom-navigation" aria-label="Navegação principal" hidden>
             <button class="navigation-item active" type="button" data-page="inicio" aria-current="page">
-                <span class="navigation-icon" aria-hidden="true">⌂</span><span class="navigation-label">Início</span>
+                <span class="navigation-icon" aria-hidden="true">🏠</span><span class="navigation-label">Início</span>
+            </button>
+            <button class="navigation-item" type="button" data-page="notificacoes">
+                <span class="navigation-icon nav-notification-icon" aria-hidden="true">🔔<span id="unreadBadge"
+                        class="unread-badge" hidden>0</span></span><span class="navigation-label">Notificações</span>
             </button>
             <button class="navigation-item" type="button" data-page="aluno">
-                <span class="navigation-icon" aria-hidden="true">♧</span><span class="navigation-label">Aluno</span>
+                <span class="navigation-icon" aria-hidden="true">👤</span><span class="navigation-label">Aluno</span>
             </button>
         </nav>
     </div>
@@ -113,9 +188,12 @@
     <script src="cordova.js"></script>
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/notification-store.js"></script>
+    <script src="js/notifications.js"></script>
     <script src="js/firebase.js"></script>
     <script src="js/navegation.js"></script>
     <script src="js/aluno.js"></script>
     <script src="js/index.js"></script>
 </body>
+
 </html>

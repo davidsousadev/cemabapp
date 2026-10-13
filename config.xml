@@ -1,6 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="br.com.davidsousadev" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Push Notification</name>
+    <name>CEMAB</name>
+
+    <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/icon/android/icon.png" />
+
     <description>Sample Apache Cordova App</description>
     <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
         Apache Cordova Team

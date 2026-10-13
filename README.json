@@ -3,7 +3,7 @@
         "snapshot_date": "2026-09-07",
         "language": "pt-BR",
         "project_type": "Apache Cordova Android application with Firebase Cloud Messaging",
-        "project_name": "Push Notification",
+        "project_name": "CEMAB",
         "project_path": "~/Documentos/apps/pushcordova",
         "version": "1.0.0",
         "current_phase": "modularizacao_do_javascript",
@@ -45,7 +45,7 @@
     "config_xml_current": {
         "widget_id": "br.com.davidsousadev",
         "version": "1.0.0",
-        "name": "Push Notification",
+        "name": "CEMAB",
         "content": "index.html",
         "android_resource_file": "google-services.json -> app/google-services.json"
     },

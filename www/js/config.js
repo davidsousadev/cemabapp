@@ -1,8 +1,10 @@
-const APP_CONFIG = {
+// Configuração central do CEMAB.
+window.APP_CONFIG = {
     API_URL: "https://apisme.vercel.app",
     TOKEN_ENDPOINT: "/users/cadastrar",
-
-    // Endpoint proposto para validar matrícula e nome.
-    // Ele precisa ser implementado na API antes de o vínculo funcionar.
-    STUDENT_LINK_ENDPOINT: "/alunos/vincular"
+    STUDENT_LINK_ENDPOINT: "/alunos/vincular",
+    STUDENT_UNLINK_ENDPOINT: "/alunos/desvincular",
+    STUDENT_LINKS_ENDPOINT: "/alunos/vinculo",
+    NOTIFICATION_HISTORY_ENDPOINT: "/presencas/historico",
+    NOTIFICATION_HISTORY_LIMIT: 100
 };
