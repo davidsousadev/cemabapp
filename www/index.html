@@ -13,13 +13,20 @@
 <body>
     <div class="app-shell">
         <header class="app-header">
-            <div class="brand-mark" aria-hidden="true">C</div>
+            <div class="brand-mark" aria-hidden="true"><img class="logo-app navigation-icon" src="img/logo.png" alt="C"></div>
             <div class="brand-copy">
                 <span class="eyebrow">CENTRO EDUCA MAIS</span>
                 <h1>CEMAB <span>App</span></h1>
             </div>
             <span class="header-status">Família</span>
         </header>
+
+        <aside id="appUpdateBanner" class="app-update-banner" role="status" aria-live="polite" hidden>
+            <span class="update-banner-icon" aria-hidden="true">⬆</span>
+            <span class="update-banner-copy"><strong id="appUpdateTitle">Atualização disponível</strong><small id="appUpdateDescription">Há uma nova versão do CEMAB App.</small></span>
+            <a id="appUpdateLink" href="#" target="_blank" rel="noopener noreferrer">Baixar <span id="appUpdateVersion"></span></a>
+            <button type="button" id="appUpdateDismiss" aria-label="Fechar aviso de atualização">×</button>
+        </aside>
 
         <div id="appToast" class="app-toast" role="status" aria-live="polite" hidden>
             <div class="toast-symbol" aria-hidden="true">✓</div>
@@ -35,8 +42,7 @@
                 <div class="welcome-panel">
                     <span class="eyebrow light">ESCOLA E FAMÍLIA CONECTADAS</span>
                     <h2 id="homeGreeting">Bem-vindo ao CEMAB.</h2>
-                    <p id="homeDescription">Acompanhe os avisos da escola e receba informações sobre a presença do
-                        aluno.</p>
+                    <p id="homeDescription">Acompanhe os avisos da escola e receba alertas importantes sobre o acompanhamento escolar.</p>
                 </div>
 
                 <section class="content-section">
@@ -99,9 +105,13 @@
                         <label for="studentFullName">Nome completo do aluno</label>
                         <input id="studentFullName" name="nome_completo" type="text" autocomplete="name" maxlength="160"
                             placeholder="Digite como consta no cadastro" required>
+                        <div class="terms-acceptance">
+                            <input id="acceptTerms" name="acceptTerms" type="checkbox" required>
+                            <label for="acceptTerms">Li e aceito os <button id="openTermsFromLogin" class="inline-link" type="button">Termos de Uso</button>.</label>
+                        </div>
                         <p id="studentFormMessage" class="form-message" role="status" aria-live="polite"></p>
                         <button id="studentSubmitButton" class="primary-button" type="submit">Confirmar e continuar
-                            <span>→</span></button>
+                            <span class="icon-seta">&gt;</span></button>
                     </form>
                     <p class="privacy-note"><span aria-hidden="true">🔒</span> O acesso só é liberado após a validação
                         dos dados pela escola.</p>
@@ -135,7 +145,7 @@
                 <div class="page-intro notifications-intro">
                     <span class="eyebrow">AVISOS E ATUALIZAÇÕES</span>
                     <h2>Notificações</h2>
-                    <p>Acompanhe o histórico de presença e os avisos recebidos da escola.</p>
+                    <p>Acompanhe notificações de falta e comunicados enviados pela escola.</p>
                 </div>
                 <div class="notification-summary-row">
                     <span id="notificationCountLabel">Seu histórico</span>
@@ -145,15 +155,15 @@
                 <div id="notificationEmptyState" class="empty-state" hidden>
                     <div class="empty-icon" aria-hidden="true">🔔</div>
                     <h3>Nenhuma notificação ainda</h3>
-                    <p>Quando a escola enviar um aviso ou registrar uma presença, ele aparecerá aqui.</p>
+                    <p>Quando a escola enviar uma notificação ou comunicado, ele aparecerá aqui.</p>
                 </div>
                 <p id="notificationSyncMessage" class="sync-message" role="status" aria-live="polite"></p>
             </section>
 
             <section class="screen" data-screen="detalhe" id="screen-detalhe">
                 <div class="page-intro detail-intro">
-                    <button class="back-button" type="button" data-go-page="notificacoes"><span
-                            aria-hidden="true">←</span> Voltar às notificações</button>
+                    <button class="back-button" type="button" data-go-page="notificacoes"><span class="icon-seta"
+                            aria-hidden="true">&lt;</span> Voltar às notificações</button>
                     <span class="eyebrow">DETALHES DO AVISO</span>
                     <h2 id="detailTitle">Notificação</h2>
                     <p id="detailReceivedAt" class="detail-date"></p>
@@ -163,26 +173,113 @@
                     <p id="detailMessage" class="detail-message"></p>
                     <div class="detail-data-row"><span>Aluno</span><strong id="detailStudentName">—</strong></div>
                     <div class="detail-data-row"><span>Matrícula</span><strong id="detailEnrollment">—</strong></div>
-                    <div class="detail-data-row"><span>Horário aproximado do reconhecimento</span><strong
-                            id="detailAccessTime">—</strong></div>
-                    <p class="detail-footnote">O horário apresentado depende dos dados enviados pelo sistema de
-                        reconhecimento facial da escola.</p>
+                    <div class="detail-data-row"><span>Data de referência</span><strong id="detailAccessTime">—</strong></div>
+                    <p class="detail-footnote">As notificações de falta são calculadas a partir dos registros recebidos pela escola para a data indicada.</p>
                 </article>
+            </section>
+
+            <section class="screen" data-screen="creditos" id="screen-creditos">
+                <div class="page-intro">
+                    <span class="eyebrow">INFORMAÇÕES DO APLICATIVO</span>
+                    <h2>Créditos do criador</h2>
+                    <p>Conheça quem desenvolveu o aplicativo e encontre os canais de contato da escola.</p>
+                </div>
+                <article class="credits-card">
+                    <div class="credits-avatar" aria-hidden="true">DS</div>
+                    <span class="eyebrow">DESENVOLVIMENTO</span>
+                    <h3>David Sousa da Silva</h3>
+                    <p>Desenvolvimento e manutenção do CEMAB App.</p>
+                    <div id="developerContactBlock" class="credits-contact-row" hidden><span aria-hidden="true">✉</span><a id="developerContactLink" href="#" target="_blank" rel="noopener noreferrer">Contato com o desenvolvedor</a></div>
+                </article>
+                <article class="credits-card">
+                    <span class="eyebrow">CANAIS OFICIAIS</span>
+                    <h3>Centro Educa Mais Anna Bernardes</h3>
+                    <p>Para informações escolares, procure os canais oficiais da escola.</p>
+                    <div id="schoolWhatsAppBlock" class="credits-contact-row" hidden><span aria-hidden="true"><img class="logo-app navigation-icon" src="img/wpp.png" alt="wpp"></span><a id="schoolWhatsAppLink" href="#" target="_blank" rel="noopener noreferrer">Conversar pelo WhatsApp da escola</a></div>
+                    <p id="schoolWhatsAppUnavailable" class="credits-footnote">O contato de WhatsApp será disponibilizado pela escola.</p>
+                </article>
+                <article class="credits-card credits-terms-card">
+                    <div><h3>Termos de Uso</h3></div>
+                    <button id="openTermsFromCredits" class="secondary-button" type="button">Ler termos</button>
+                </article>
+                <p class="credits-footnote">CEMAB App · Comunicação entre escola e família.</p>
             </section>
         </main>
 
         <nav id="bottomNavigation" class="bottom-navigation" aria-label="Navegação principal" hidden>
-            <button class="navigation-item active" type="button" data-page="inicio" aria-current="page">
+            <button class="navigation-item active" type="button" data-page="inicio" data-requires-link aria-current="page">
                 <span class="navigation-icon" aria-hidden="true">🏠</span><span class="navigation-label">Início</span>
             </button>
-            <button class="navigation-item" type="button" data-page="notificacoes">
+            <button class="navigation-item" type="button" data-page="notificacoes" data-requires-link>
                 <span class="navigation-icon nav-notification-icon" aria-hidden="true">🔔<span id="unreadBadge"
                         class="unread-badge" hidden>0</span></span><span class="navigation-label">Notificações</span>
             </button>
             <button class="navigation-item" type="button" data-page="aluno">
                 <span class="navigation-icon" aria-hidden="true">👤</span><span class="navigation-label">Aluno</span>
             </button>
+            <button class="navigation-item" type="button" data-page="creditos">
+                <span class="navigation-icon" aria-hidden="true">ⓘ</span><span class="navigation-label">Créditos</span>
+            </button>
         </nav>
+
+        <div id="termsModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="termsModalTitle" hidden>
+            <section class="terms-modal-card">
+                <div class="terms-modal-header"><div><span class="eyebrow">CEMAB APP</span><h2 id="termsModalTitle">Termos de Uso</h2></div><button id="closeTermsModal" class="modal-close" type="button" aria-label="Fechar termos">x</button></div>
+                <div id="termsModalContent" class="terms-modal-content">
+                    <!-- INSIRA MANUALMENTE AQUI O TEXTO OFICIAL COMPLETO DOS TERMOS DE USO. -->
+                    
+                    <h3>Termos de Uso</h3>
+                    <p>O uso das funcionalidades deste aplicativo somente será permitido após a manifestação expressa de aceite destes
+                        Termos de Uso.</p>
+                    
+                    <h4>1. Conformidade Legal</h4>
+                    <p>Este aplicativo cumpre a <strong>Lei nº 13.709, de 14 de agosto de 2018 — Lei Geral de Proteção de Dados Pessoais
+                            (LGPD)</strong>, observando os fundamentos dispostos no <strong>Art. 2º</strong>, incisos I a VII.</p>
+                    
+                    <h4>2. Fundamentos da Proteção de Dados</h4>
+                    <p>São seguidos os princípios de respeito à privacidade, autodeterminação informativa, liberdade de expressão,
+                        inviolabilidade da intimidade, honra e imagem, desenvolvimento tecnológico, livre iniciativa, dignidade e exercício
+                        da cidadania, conforme previsto na lei.</p>
+                    
+                    <h4>3. Definições Legais</h4>
+                    <p>Aplicam-se as definições do <strong>Art. 5º</strong> da LGPD: dado pessoal, dado sensível, dado anonimizado, banco de
+                        dados, titular, controlador e operador.</p>
+                    
+                    <h4>4. Finalidade do Projeto</h4>
+                    <p>Este aplicativo tem por objetivo alertar os responsáveis sobre a frequência escolar, comunicando situações de faltas
+                        do aluno ou quando não houver confirmação por reconhecimento facial. Para isso, utiliza o sistema de notificações
+                        com a finalidade exclusiva de enviar esses alertas diretamente ao responsável.</p>
+                    
+                    <h4>5. Autoria e Desenvolvimento</h4>
+                    <p>O projeto é desenvolvido pelo professor <strong>David Sousa da Silva</strong> em conjunto com os alunos do Ensino
+                        Médio — Curso Técnico em Informática para Internet, como atividade acadêmica da instituição de ensino.</p>
+                    
+                    <h4>6. Princípios do Tratamento</h4>
+                    <p>O sistema adota os princípios da <strong>necessidade, finalidade, adequação, transparência, livre acesso e
+                            segurança</strong> em todo o tratamento de informações.</p>
+                    
+                    <h4>7. Dados Tratados e Armazenamento</h4>
+                    <p>Nenhum dado pessoal é armazenado em servidores externos. Apenas o <em>token</em> do dispositivo é utilizado para
+                        vincular o aluno previamente cadastrado ao responsável, garantindo que as notificações e alertas sejam encaminhados
+                        corretamente.</p>
+                    
+                    <h4>8. Funcionamento e Recursos</h4>
+                    <p>O aplicativo funciona com conexão à internet. No aparelho ficam armazenadas apenas as notificações recebidas,
+                        mantendo no máximo os últimos 100 registros.</p>
+                    
+                    <h4>9. Caráter Gratuito e Isenção de Garantia</h4>
+                    <p>Todo o desenvolvimento e a hospedagem utilizam ferramentas gratuitas. O serviço é fornecido sem garantia de
+                        disponibilidade contínua e não se destina nem pode ser utilizado para fins comerciais.</p>
+                    
+                    <h4>10. Sigilo, Contato e Disposições Finais</h4>
+                    <p>É expressamente proibido o compartilhamento de quaisquer informações de usuários com terceiros. Em caso de dúvidas,
+                        entre em contato pela aba Créditos ou pelo WhatsApp oficial da escola.</p>
+                    
+                    <p><em>Timon — PI, outubro de 2026.</em></p>
+                </div>
+                <div class="terms-modal-footer"><button id="closeTermsFooter" class="primary-button" type="button">Fechar</button></div>
+            </section>
+        </div>
     </div>
 
     <script src="cordova.js"></script>
@@ -192,7 +289,9 @@
     <script src="js/notifications.js"></script>
     <script src="js/firebase.js"></script>
     <script src="js/navegation.js"></script>
+    <script src="js/info.js"></script>
     <script src="js/aluno.js"></script>
+    <script src="js/app-update.js"></script>
     <script src="js/index.js"></script>
 </body>
 

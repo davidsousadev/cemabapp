@@ -81,7 +81,7 @@
             const mark = document.createElement('span');
             mark.className = 'notification-item-icon';
             mark.setAttribute('aria-hidden', 'true');
-            mark.textContent = item.tipo === 'presenca' ? '✓' : '🔔';
+            mark.textContent = item.tipo === 'falta' ? '!' : '🔔';
 
             const content = document.createElement('span');
             content.className = 'notification-item-copy';
@@ -112,7 +112,7 @@
         el('detailReceivedAt').textContent = 'Recebida em ' + formatarDataHora(item.recebida_em);
         el('detailStudentName').textContent = safeText(item.nome_completo, 'Não informado');
         el('detailEnrollment').textContent = formatarMatricula(item.matricula);
-        el('detailAccessTime').textContent = item.tipo === 'presenca' ? horaAproximada(item) : 'Não se aplica';
+        el('detailAccessTime').textContent = (item.dados && item.dados.data_referencia) ? new Date(String(item.dados.data_referencia) + 'T12:00:00').toLocaleDateString('pt-BR') : 'Não se aplica';
         if (typeof navegarPara === 'function') navegarPara('detalhe');
         await renderizarLista();
     }
@@ -192,7 +192,7 @@
             const data = await CemabApi.request(endpoint, { headers: { 'Accept': 'application/json', 'X-FCM-Token': token } });
             const incoming = Array.isArray(data.notificacoes) ? data.notificacoes : [];
             for (const remote of incoming) {
-                await CemabNotificationStore.save({ data: Object.assign({ tipo: 'presenca' }, remote) });
+                await CemabNotificationStore.save({ data: Object.assign({ tipo: 'aviso' }, remote) });
             }
             await renderizarLista();
         } catch (error) {

@@ -59,6 +59,12 @@ body {
   padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
 }
 
+.logo-app {
+  width: inherit;
+  height: inherit;
+
+}
+
 button,
 input {
   font: inherit;
@@ -580,7 +586,7 @@ form .primary-button {
 }
 
 .secondary-button {
-  width: 100%;
+  width: 50%;
   border: 1px solid var(--red-100);
   background: #fff;
   color: var(--red-600);
@@ -991,4 +997,318 @@ form .primary-button {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Banner discreto de atualização remota */
+.app-update-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 12px 0;
+  padding: 10px 12px;
+  background: #fff7e7;
+  border: 1px solid #f2dfb2;
+  border-radius: 13px;
+  color: #68480b;
+  box-shadow: 0 4px 14px rgba(93, 65, 13, .06);
+}
+
+.update-banner-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 9px;
+  background: #f7e9c6;
+  font-weight: 900;
+}
+
+.update-banner-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.update-banner-copy strong {
+  display: block;
+  font-size: 11px;
+  margin-bottom: 3px;
+}
+
+.update-banner-copy small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.app-update-banner a {
+  color: #5f4107;
+  text-decoration: none;
+  border-radius: 8px;
+  background: #f3dfad;
+  padding: 8px 9px;
+  font-size: 10px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.app-update-banner a:focus-visible {
+  outline-color: #a87a21;
+}
+
+.app-update-banner>button {
+  border: 0;
+  background: transparent;
+  color: #8c6a28;
+  font-size: 19px;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+/* Aceite obrigatório dos Termos de Uso */
+.terms-acceptance {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 17px;
+  padding: 12px;
+  background: #f6f9f7;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+form .terms-acceptance input[type="checkbox"] {
+  appearance: auto;
+  -webkit-appearance: checkbox;
+  display: block;
+  flex: 0 0 18px;
+  width: 18px;
+  min-height: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 2px 0 0;
+  border: initial;
+  border-radius: 3px;
+  box-shadow: none;
+  accent-color: var(--blue-900);
+}
+
+form .terms-acceptance label {
+  display: block;
+  flex: 1;
+  margin: 0;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.inline-link {
+  display: inline;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--blue-700);
+  text-decoration: underline;
+  font-size: inherit;
+  font-weight: 850;
+}
+
+/* Créditos e contato */
+.credits-card {
+  margin: 0 16px 14px;
+  padding: 21px 19px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 19px;
+  box-shadow: var(--shadow);
+}
+
+.credits-card h3 {
+  font-size: 17px;
+  margin: 7px 0 8px;
+  color: var(--ink);
+}
+
+.credits-card p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.credits-avatar {
+  display: grid;
+  place-items: center;
+  width: 53px;
+  height: 53px;
+  margin-bottom: 16px;
+  border-radius: 17px;
+  background: var(--blue-900);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.credits-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.credits-contact-row>span {
+  width: 29px;
+  height: 29px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: var(--blue-100);
+  color: var(--blue-900);
+  font-weight: 850;
+}
+
+.credits-contact-row a {
+  color: var(--blue-900);
+  font-weight: 800;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.credits-footnote {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 12px 16px 20px;
+}
+
+.credits-terms-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.credits-terms-card h3 {
+  margin-top: 0;
+}
+
+.credits-terms-card .secondary-button {
+  flex: 0 0 auto;
+}
+
+/* Modal dos Termos de Uso */
+body.modal-open {
+  overflow: hidden;
+}
+
+.modal-overlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(11, 29, 23, .58);
+  backdrop-filter: blur(3px);
+}
+
+.terms-modal-card {
+  display: flex;
+  flex-direction: column;
+  width: min(560px, 100%);
+  max-height: min(82vh, 760px);
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .2);
+  overflow: hidden;
+}
+
+.terms-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 21px 22px 15px;
+  border-bottom: 1px solid var(--line);
+}
+
+.terms-modal-header h2 {
+  margin: 4px 0 0;
+  font-size: 21px;
+}
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: #f0f4f2;
+  color: #38574a;
+  font-size: 23px;
+}
+
+.terms-modal-content {
+  overflow: auto;
+  padding: 20px 22px;
+  font-size: 13px;
+  color: #3f5149;
+  line-height: 1.7;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.terms-modal-content p {
+  margin: 0 0 14px;
+}
+
+.terms-modal-footer {
+  padding: 13px 22px 20px;
+  border-top: 1px solid var(--line);
+}
+
+.terms-modal-footer .primary-button {
+  justify-content: center;
+}
+
+@media (min-width: 600px) {
+  .credits-card {
+    margin-left: 22px;
+    margin-right: 22px;
+    padding: 27px;
+  }
+
+  .credits-footnote {
+    margin-left: 22px;
+    margin-right: 22px;
+  }
+}
+
+@media (max-width: 390px) {
+  .app-update-banner {
+    gap: 7px;
+    padding: 9px;
+  }
+
+  .app-update-banner a {
+    padding: 8px 7px;
+    font-size: 9px;
+  }
+
+  .app-update-banner>button {
+    font-size: 17px;
+  }
+
+  .credits-terms-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.icon-seta{
+  vertical-align: middle;
 }

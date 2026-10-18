@@ -13,7 +13,7 @@
 
     function navegarPara(pagina) {
         const linked = window.CemabAuth ? window.CemabAuth.isLinked() : false;
-        if (!linked && pagina !== 'aluno') pagina = 'aluno';
+        if (!linked && pagina !== 'aluno' && pagina !== 'creditos') pagina = 'aluno';
         document.querySelectorAll('[data-screen]').forEach(function (tela) {
             tela.classList.toggle('active', tela.getAttribute('data-screen') === pagina);
         });
@@ -25,7 +25,10 @@
             else botao.removeAttribute('aria-current');
         });
         const nav = document.getElementById('bottomNavigation');
-        if (nav) nav.hidden = !linked;
+        if (nav) nav.hidden = false;
+        document.querySelectorAll('[data-requires-link]').forEach(function (botao) {
+            botao.hidden = !linked;
+        });
         window.CEMAB_CURRENT_SCREEN = pagina;
         window.scrollTo(0, 0);
     }

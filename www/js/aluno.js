@@ -3,6 +3,7 @@
     const STORAGE_KEY = 'cemab_aluno_vinculado';
     const TOKEN_KEY = 'cemab_fcm_token';
     const PENDING_UNLINK_KEY = 'cemab_desvinculos_pendentes_v1';
+    const TERMS_ACCEPTED_KEY = 'cemab_terms_accepted_v1';
     let pendingUnlinkPromise = null;
 
     function byId(id) { return document.getElementById(id); }
@@ -12,7 +13,11 @@
         node.textContent = texto || '';
         node.className = 'form-message' + (tipo ? ' ' + tipo : '');
     }
-    function lerVinculo() {
+    function termosAceitos() {
+        return localStorage.getItem(TERMS_ACCEPTED_KEY) === 'yes';
+    }
+
+    function lerVinculoRaw() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) return null;
@@ -22,6 +27,12 @@
             localStorage.removeItem(STORAGE_KEY);
             return null;
         }
+    }
+
+    function lerVinculo() {
+        // Vínculos antigos sem aceite registrado ficam bloqueados até o aceite explícito.
+        if (!termosAceitos()) return null;
+        return lerVinculoRaw();
     }
 
     function normalizarMatriculaLocal(value) {
@@ -118,10 +129,10 @@
             if (byId('homeStudentSummary')) byId('homeStudentSummary').textContent = aluno.nome_completo + ' · Matrícula ' + formatarMatricula(aluno.matricula);
         } else {
             if (byId('homeGreeting')) byId('homeGreeting').textContent = 'Bem-vindo ao CEMAB.';
-            if (byId('homeDescription')) byId('homeDescription').textContent = 'Acompanhe os avisos da escola e receba informações sobre a presença do aluno.';
+            if (byId('homeDescription')) byId('homeDescription').textContent = 'Acompanhe os avisos da escola e receba alertas importantes sobre o acompanhamento escolar.';
         }
         const nav = byId('bottomNavigation');
-        if (nav) nav.hidden = !aluno;
+        if (nav) nav.hidden = false; // Aluno e Créditos continuam acessíveis antes do vínculo.
         return aluno;
     }
 
@@ -155,6 +166,12 @@
         const button = byId('studentSubmitButton');
         const token = localStorage.getItem(TOKEN_KEY) || '';
 
+        const aceiteCheckbox = byId('acceptTerms');
+        if (!aceiteCheckbox || !aceiteCheckbox.checked) {
+            mostrarMensagem('studentFormMessage', 'Para continuar, leia os Termos de Uso e marque a opção de aceite.', 'error');
+            if (aceiteCheckbox) aceiteCheckbox.focus();
+            return;
+        }
         if (!matricula || !nome) {
             mostrarMensagem('studentFormMessage', 'Preencha a matrícula e o nome completo.', 'error');
             return;
@@ -176,6 +193,17 @@
         button.textContent = 'Conferindo dados…';
         mostrarMensagem('studentFormMessage', 'Validando os dados com a escola. Aguarde.');
         try {
+            const vinculoAnterior = lerVinculoRaw();
+            if (vinculoAnterior && normalizarMatriculaLocal(vinculoAnterior.matricula) !== normalizarMatriculaLocal(matricula)) {
+                // Não deixa dois alunos vinculados silenciosamente ao mesmo aparelho ao migrar de versões antigas.
+                await CemabApi.postJson(APP_CONFIG.STUDENT_UNLINK_ENDPOINT, {
+                    matricula: vinculoAnterior.matricula,
+                    token: token
+                });
+                if (window.CemabNotificationStore && window.CemabNotificationStore.clear) {
+                    try { await CemabNotificationStore.clear(); } catch (_) { /* a nova sessão poderá continuar */ }
+                }
+            }
             const data = await CemabApi.postJson(APP_CONFIG.STUDENT_LINK_ENDPOINT, {
                 matricula: matricula,
                 nome_completo: nome,
@@ -190,6 +218,8 @@
                 nome_completo: String(data.aluno.nome_completo || nome).trim(),
                 vinculado_em: new Date().toISOString()
             };
+            // O aceite só é salvo após o responsável marcar a caixa e a API confirmar o vínculo.
+            localStorage.setItem(TERMS_ACCEPTED_KEY, 'yes');
             removerDesvinculoPendenteDaMatricula(aluno.matricula);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(aluno));
             byId('studentLinkForm').reset();
@@ -208,7 +238,7 @@
             console.error('Falha ao vincular aluno:', error);
         } finally {
             button.disabled = false;
-            button.innerHTML = 'Confirmar e continuar <span>→</span>';
+            button.innerHTML = 'Confirmar e continuar <span class="icon-seta">&gt;</span>';
         }
     }
 
