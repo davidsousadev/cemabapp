@@ -1,7 +1,7 @@
 // Configuração central do CEMAB. Atualize APP_VERSION ao gerar uma nova versão do APK
 // e mantenha o mesmo valor em config.xml e package.json.
 window.APP_CONFIG = {
-    API_URL: "https://apisme.vercel.app",
+    API_URL: "https://apicemab.vercel.app",
     APP_VERSION: "1.2.0",
     TOKEN_ENDPOINT: "/users/cadastrar",
     STUDENT_LINK_ENDPOINT: "/alunos/vincular",

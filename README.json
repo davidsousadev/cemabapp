@@ -50,8 +50,8 @@
         "android_resource_file": "google-services.json -> app/google-services.json"
     },
     "backend": {
-        "base_url": "https://apisme.vercel.app",
-        "endpoint": "POST https://apisme.vercel.app/users/cadastrar",
+        "base_url": "https://apicemab.vercel.app",
+        "endpoint": "POST https://apicemab.vercel.app/users/cadastrar",
         "payload": {
             "token": "FCM_TOKEN"
         },
@@ -110,7 +110,7 @@
     "modular_files_target": {
         "config.js": {
             "purpose": "Centralizar configuracoes.",
-            "content": "const APP_CONFIG = { API_URL: 'https://apisme.vercel.app', TOKEN_ENDPOINT: '/users/cadastrar' };"
+            "content": "const APP_CONFIG = { API_URL: 'https://apicemab.vercel.app', TOKEN_ENDPOINT: '/users/cadastrar' };"
         },
         "api.js": {
             "purpose": "Responsavel pelo POST do token FCM para a API.",
