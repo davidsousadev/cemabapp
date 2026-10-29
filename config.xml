@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="br.com.davidsousadev" version="1.2.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="br.com.davidsousadev" version="1.2.4" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>CEMAB</name>
 
     <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/icon/android/icon.png" />
@@ -10,9 +10,7 @@
     <plugin name="cordova-plugin-app-version" spec="0.1.14" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
-<platform name="android">
-  <resource-file src="google-services.json" target="app/google-services.json" />
-</platform>
+
 
     
 </widget>

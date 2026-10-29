@@ -1,6 +1,7 @@
 // Estado de acesso e vínculo aluno-dispositivo.
 (function () {
     const STORAGE_KEY = 'cemab_aluno_vinculado';
+    const STUDENTS_KEY = 'cemab_alunos_vinculados_v1';
     const TOKEN_KEY = 'cemab_fcm_token';
     const PENDING_UNLINK_KEY = 'cemab_desvinculos_pendentes_v1';
     const TERMS_ACCEPTED_KEY = 'cemab_terms_accepted_v1';
@@ -29,10 +30,42 @@
         }
     }
 
+    function migrarVinculoLegado() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+            const value = JSON.parse(raw);
+            if (value && value.matricula && value.nome_completo) {
+                const alunos = lerAlunosRaw();
+                if (!alunos.some(function (a) { return normalizarMatriculaLocal(a.matricula) === normalizarMatriculaLocal(value.matricula); })) {
+                    alunos.push(value);
+                    salvarAlunosRaw(alunos);
+                }
+            }
+        } catch (_) { /* ignora */ }
+    }
+    function lerAlunosRaw() {
+        try {
+            const raw = localStorage.getItem(STUDENTS_KEY);
+            const value = raw ? JSON.parse(raw) : [];
+            return Array.isArray(value) ? value : [];
+        } catch (_) { return []; }
+    }
+    function salvarAlunosRaw(items) {
+        if (items && items.length) localStorage.setItem(STUDENTS_KEY, JSON.stringify(items));
+        else localStorage.removeItem(STUDENTS_KEY);
+    }
+    function lerAlunos() {
+        if (!termosAceitos()) return [];
+        migrarVinculoLegado();
+        return lerAlunosRaw();
+    }
     function lerVinculo() {
         // Vínculos antigos sem aceite registrado ficam bloqueados até o aceite explícito.
         if (!termosAceitos()) return null;
-        return lerVinculoRaw();
+        migrarVinculoLegado();
+        const alunos = lerAlunosRaw();
+        return alunos.length ? alunos[0] : null;
     }
 
     function normalizarMatriculaLocal(value) {
@@ -103,6 +136,26 @@
             salvarDesvinculosPendentes(restantes);
             return restantes.length === 0;
         })().finally(function () { pendingUnlinkPromise = null; });
+    function renderizarListaAlunos() {
+        const list = byId('linkedStudentsList');
+        const empty = byId('linkedStudentsEmpty');
+        if (!list) return;
+        list.replaceChildren();
+        const alunos = lerAlunos();
+        if (empty) empty.hidden = alunos.length > 0;
+        alunos.forEach(function (aluno) {
+            const li = document.createElement('li');
+            li.className = 'linked-student-item';
+            const name = document.createElement('span');
+            name.textContent = aluno.nome_completo;
+            const mat = document.createElement('small');
+            mat.textContent = formatarMatricula(aluno.matricula);
+            li.append(name, mat);
+            list.appendChild(li);
+        });
+    }
+
+
         return pendingUnlinkPromise;
     }
     function formatarMatricula(value) {
@@ -133,6 +186,7 @@
         }
         const nav = byId('bottomNavigation');
         if (nav) nav.hidden = false; // Aluno e Créditos continuam acessíveis antes do vínculo.
+        renderizarListaAlunos();
         return aluno;
     }
 
@@ -142,15 +196,42 @@
     }
 
     async function sincronizarVinculoServidor() {
-        const aluno = lerVinculo();
+        const alunos = lerAlunos();
         const token = localStorage.getItem(TOKEN_KEY) || '';
-        if (!aluno || !token || !window.CemabApi) return false;
+        if (!alunos.length || !token || !window.CemabApi) return false;
         try {
-            await CemabApi.postJson(APP_CONFIG.STUDENT_LINK_ENDPOINT, {
-                matricula: aluno.matricula,
-                nome_completo: aluno.nome_completo,
-                token: token
-            });
+            for (const aluno of alunos) {
+                await CemabApi.postJson(APP_CONFIG.STUDENT_LINK_ENDPOINT, {
+                    matricula: aluno.matricula,
+                    nome_completo: aluno.nome_completo,
+                    token: token
+                });
+            }
+            // Reconcilia a lista local com os vínculos efetivamente gravados no servidor.
+            try {
+                const remoto = await CemabApi.request(APP_CONFIG.STUDENT_LINKS_ENDPOINT, {
+                    headers: { 'X-FCM-Token': token }
+                });
+                if (remoto && remoto.success && Array.isArray(remoto.alunos)) {
+                    const locais = lerAlunosRaw();
+                    const porMatricula = new Map(locais.map(function (a) {
+                        return [normalizarMatriculaLocal(a.matricula), a];
+                    }));
+                    const reconciliados = remoto.alunos.map(function (item) {
+                        const existente = porMatricula.get(normalizarMatriculaLocal(item.matricula));
+                        return {
+                            id: item.id,
+                            matricula: String(item.matricula || '').trim(),
+                            nome_completo: String(item.nome_completo || '').trim(),
+                            vinculado_em: existente ? existente.vinculado_em : new Date().toISOString()
+                        };
+                    });
+                    salvarAlunosRaw(reconciliados);
+                    if (reconciliados.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(reconciliados[0]));
+                }
+            } catch (erroRemoto) {
+                console.warn('Não foi possível atualizar a lista remota de alunos agora.', erroRemoto);
+            }
             return true;
         } catch (error) {
             // Não expõe erro técnico à família nem apaga a sessão local por falha temporária.
@@ -212,16 +293,26 @@
             if (!data || data.success !== true || data.vinculo_ativo !== true || !data.aluno) {
                 throw new Error('A escola não confirmou o vínculo. Confira os dados e tente novamente.');
             }
-            const aluno = {
-                id: data.aluno.id,
-                matricula: String(data.aluno.matricula || matricula).trim(),
-                nome_completo: String(data.aluno.nome_completo || nome).trim(),
-                vinculado_em: new Date().toISOString()
-            };
+            // A API pode vincular automaticamente os irmãos (mesma família) ao mesmo dispositivo.
+            const alunosServidor = Array.isArray(data.alunos) && data.alunos.length ? data.alunos : [data.aluno];
+            const alunosParaSalvar = alunosServidor.map(function (item) {
+                return {
+                    id: item.id,
+                    matricula: String(item.matricula || matricula).trim(),
+                    nome_completo: String(item.nome_completo || nome).trim(),
+                    vinculado_em: new Date().toISOString()
+                };
+            });
             // O aceite só é salvo após o responsável marcar a caixa e a API confirmar o vínculo.
             localStorage.setItem(TERMS_ACCEPTED_KEY, 'yes');
-            removerDesvinculoPendenteDaMatricula(aluno.matricula);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(aluno));
+            alunosParaSalvar.forEach(function (aluno) { removerDesvinculoPendenteDaMatricula(aluno.matricula); });
+            const alunosLocais = lerAlunosRaw();
+            alunosParaSalvar.forEach(function (aluno) {
+                const idx = alunosLocais.findIndex(function (a) { return normalizarMatriculaLocal(a.matricula) === normalizarMatriculaLocal(aluno.matricula); });
+                if (idx >= 0) alunosLocais[idx] = aluno; else alunosLocais.push(aluno);
+            });
+            salvarAlunosRaw(alunosLocais);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(alunosLocais[0] || alunosParaSalvar[0]));
             byId('studentLinkForm').reset();
             mostrarMensagem('studentFormMessage', '', '');
             mostrarMensagem('unlinkMessage', '', '');
@@ -293,7 +384,8 @@
     }
 
     window.CemabAuth = {
-        isLinked: function () { return !!lerVinculo(); },
+        isLinked: function () { return lerAlunos().length > 0; },
+        getStudents: lerAlunos,
         getStudent: lerVinculo,
         applyState: aplicarEstadoAcesso,
         sync: sincronizarVinculoServidor,

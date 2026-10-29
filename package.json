@@ -1,7 +1,7 @@
 {
   "name": "br.com.davidsousadev",
   "displayName": "CEMAB",
-  "version": "1.2.0",
+  "version": "1.2.4",
   "description": "Aplicativo de comunicação escolar do Centro Educa Mais Anna Bernardes.",
   "main": "index.js",
   "scripts": {

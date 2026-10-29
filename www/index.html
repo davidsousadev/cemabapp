@@ -72,6 +72,18 @@
                         <span class="feature-arrow" aria-hidden="true">›</span>
                     </button>
 
+                    <div class="home-linked-students" id="homeLinkedStudents">
+                        <div class="section-heading">
+                            <div>
+                                <span class="eyebrow">FAMÍLIA</span>
+                                <h3>Alunos vinculados</h3>
+                            </div>
+                            <button type="button" data-go-page="aluno" class="inline-link">Adicionar</button>
+                        </div>
+                        <ul id="linkedStudentsList" class="linked-students-list"></ul>
+                        <p id="linkedStudentsEmpty" class="form-help">Nenhum aluno vinculado ainda.</p>
+                    </div>
+
                     <div class="home-latest" id="homeLatestCard" hidden>
                         <div class="home-latest-heading"><span class="eyebrow">MAIS RECENTE</span><button type="button"
                                 data-go-page="notificacoes">Ver todas</button></div>
@@ -198,11 +210,17 @@
                     <div id="schoolWhatsAppBlock" class="credits-contact-row" hidden><span aria-hidden="true"><img class="logo-app navigation-icon" src="img/wpp.png" alt="wpp"></span><a id="schoolWhatsAppLink" href="#" target="_blank" rel="noopener noreferrer">Conversar pelo WhatsApp da escola</a></div>
                     <p id="schoolWhatsAppUnavailable" class="credits-footnote">O contato de WhatsApp será disponibilizado pela escola.</p>
                 </article>
+                <footer class="credits-footer">
+                    <span>CEMAB App</span>
+                    <span class="footer-dot" aria-hidden="true">•</span>
+                    <span>Comunicação entre escola e família</span>
+                    <span class="footer-dot" aria-hidden="true">•</span>
+                    <button id="openVersionModal" class="footer-version-button" type="button" aria-label="Ver notas da versão">v<span id="creditsVersionNumber"></span></button>
+                </footer>
                 <article class="credits-card credits-terms-card">
                     <div><h3>Termos de Uso</h3></div>
                     <button id="openTermsFromCredits" class="secondary-button" type="button">Ler termos</button>
                 </article>
-                <p class="credits-footnote">CEMAB App · Comunicação entre escola e família.</p>
             </section>
         </main>
 
@@ -275,7 +293,7 @@
                     <p>É expressamente proibido o compartilhamento de quaisquer informações de usuários com terceiros. Em caso de dúvidas,
                         entre em contato pela aba Créditos ou pelo WhatsApp oficial da escola.</p>
                     
-                    <p><em>Timon — PI, outubro de 2026.</em></p>
+                    <p><em>Timon — MA, outubro de 2026.</em></p>
                 </div>
                 <div class="terms-modal-footer"><button id="closeTermsFooter" class="primary-button" type="button">Fechar</button></div>
             </section>
@@ -283,6 +301,21 @@
     </div>
 
     <script src="cordova.js"></script>
+    <div id="versionModal" class="terms-modal" hidden>
+        <div class="terms-modal-dialog">
+            <div class="terms-modal-header">
+                <h3>Versão do CEMAB App</h3>
+                <button id="closeVersionModal" class="modal-close" type="button" aria-label="Fechar">×</button>
+            </div>
+            <div id="versionModalContent" class="terms-modal-content">
+                <p><strong id="versionModalLabel">Versão 1.2.4</strong></p>
+                <ul id="versionNotesList" class="version-notes-list"></ul>
+            </div>
+            <div class="terms-modal-footer">
+                <button id="closeVersionFooter" class="primary-button" type="button">Fechar</button>
+            </div>
+        </div>
+    </div>
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
     <script src="js/notification-store.js"></script>

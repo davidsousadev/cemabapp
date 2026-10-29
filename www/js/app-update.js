@@ -42,7 +42,7 @@
         } catch (error) {
             console.warn('Não foi possível consultar a versão nativa; usando a versão de fallback.', error);
         }
-        return String((window.APP_CONFIG && APP_CONFIG.APP_VERSION) || '1.1.0');
+        return String((window.APP_CONFIG && APP_CONFIG.APP_VERSION) || '1.2.4');
     }
 
     async function verificarVersao() {

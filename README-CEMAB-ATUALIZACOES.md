@@ -2,7 +2,7 @@
 
 ## Versão desta compilação
 
-A versão de desenvolvimento definida nesta entrega é `1.1.0`. Os arquivos `config.xml`, `package.json` e `www/js/config.js` foram alinhados a esse número. O plugin `cordova-plugin-app-version` lê a versão do pacote nativo instalado; `APP_VERSION` é fallback para testes web ou se o plugin ainda não estiver disponível.
+A versão de desenvolvimento definida nesta entrega é `1.2.4`. Os arquivos `config.xml`, `package.json` e `www/js/config.js` foram alinhados a esse número. O plugin `cordova-plugin-app-version` lê a versão do pacote nativo instalado; `APP_VERSION` é fallback para testes web ou se o plugin ainda não estiver disponível.
 
 ## Aviso de atualização
 

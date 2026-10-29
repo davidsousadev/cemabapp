@@ -2,7 +2,7 @@
 // e mantenha o mesmo valor em config.xml e package.json.
 window.APP_CONFIG = {
     API_URL: "https://apicemab.vercel.app",
-    APP_VERSION: "1.2.0",
+    APP_VERSION: "1.2.4",
     TOKEN_ENDPOINT: "/users/cadastrar",
     STUDENT_LINK_ENDPOINT: "/alunos/vincular",
     STUDENT_UNLINK_ENDPOINT: "/alunos/desvincular",
