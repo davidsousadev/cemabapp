@@ -215,6 +215,22 @@
             refresh.disabled = false;
             refresh.textContent = 'Atualizar';
         });
+        const markAll = el('markAllReadButton');
+        if (markAll) markAll.addEventListener('click', async function () {
+            markAll.disabled = true;
+            markAll.textContent = 'Marcando…';
+            try {
+                const items = await CemabNotificationStore.list();
+                for (const item of items) {
+                    if (!item.lida) await CemabNotificationStore.markRead(item.evento_id);
+                }
+                await renderizarLista();
+                await atualizarIndicadores();
+            } finally {
+                markAll.disabled = false;
+                markAll.textContent = 'Marcar todas como lidas';
+            }
+        });
         const toastOpen = el('toastOpenButton');
         if (toastOpen) toastOpen.addEventListener('click', function () { if (toastEventoId) abrirDetalhe(toastEventoId); el('appToast').hidden = true; });
         const toastClose = el('toastCloseButton');

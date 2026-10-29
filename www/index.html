@@ -13,7 +13,7 @@
 <body>
     <div class="app-shell">
         <header class="app-header">
-            <div class="brand-mark" aria-hidden="true"><img class="logo-app navigation-icon" src="img/logo.png" alt="C"></div>
+            <a class="brand-mark" href="#" onclick="navegarPara('inicio'); return false;" aria-label="Ir para a página inicial"><img class="logo-app navigation-icon" src="img/logo.png" alt="C"></a>
             <div class="brand-copy">
                 <span class="eyebrow">CENTRO EDUCA MAIS</span>
                 <h1>CEMAB <span>App</span></h1>
@@ -72,18 +72,6 @@
                         <span class="feature-arrow" aria-hidden="true">›</span>
                     </button>
 
-                    <div class="home-linked-students" id="homeLinkedStudents">
-                        <div class="section-heading">
-                            <div>
-                                <span class="eyebrow">FAMÍLIA</span>
-                                <h3>Alunos vinculados</h3>
-                            </div>
-                            <button type="button" data-go-page="aluno" class="inline-link">Adicionar</button>
-                        </div>
-                        <ul id="linkedStudentsList" class="linked-students-list"></ul>
-                        <p id="linkedStudentsEmpty" class="form-help">Nenhum aluno vinculado ainda.</p>
-                    </div>
-
                     <div class="home-latest" id="homeLatestCard" hidden>
                         <div class="home-latest-heading"><span class="eyebrow">MAIS RECENTE</span><button type="button"
                                 data-go-page="notificacoes">Ver todas</button></div>
@@ -139,10 +127,15 @@
                     <div class="linked-detail"><span>Nome completo</span><strong id="linkedStudentName"></strong></div>
                     <div class="linked-detail"><span>Matrícula</span><strong id="linkedStudentEnrollment"></strong>
                     </div>
-                    <p class="linked-footnote">Este dispositivo está associado a este aluno para receber notificações
+                    <div id="linkedFamilyBlock" class="linked-family-block" hidden>
+                        <span class="eyebrow">FAMÍLIA</span>
+                        <h4>Alunos vinculados a este dispositivo</h4>
+                        <ul id="linkedFamilyList" class="linked-students-list"></ul>
+                    </div>
+                    <p class="linked-footnote">Este dispositivo está associado aos alunos acima para receber notificações
                         escolares.</p>
                     <button id="unlinkStudentButton" class="secondary-button" type="button">Sair e desvincular
-                        aluno</button>
+                        todos os alunos</button>
                     <p id="unlinkMessage" class="form-message" role="status" aria-live="polite"></p>
                 </div>
 
@@ -162,6 +155,7 @@
                 <div class="notification-summary-row">
                     <span id="notificationCountLabel">Seu histórico</span>
                     <button id="refreshNotificationsButton" class="text-button" type="button">Atualizar</button>
+                    <button id="markAllReadButton" class="text-button" type="button">Marcar todas como lidas</button>
                 </div>
                 <div id="notificationList" class="notification-list" aria-live="polite"></div>
                 <div id="notificationEmptyState" class="empty-state" hidden>
@@ -301,11 +295,11 @@
     </div>
 
     <script src="cordova.js"></script>
-    <div id="versionModal" class="terms-modal" hidden>
-        <div class="terms-modal-dialog">
+    <div id="versionModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="versionModalTitle" hidden>
+        <section class="terms-modal-card">
             <div class="terms-modal-header">
-                <h3>Versão do CEMAB App</h3>
-                <button id="closeVersionModal" class="modal-close" type="button" aria-label="Fechar">×</button>
+                <div><span class="eyebrow">CEMAB APP</span><h2 id="versionModalTitle">Notas de versão</h2></div>
+                <button id="closeVersionModal" class="modal-close" type="button" aria-label="Fechar versão">×</button>
             </div>
             <div id="versionModalContent" class="terms-modal-content">
                 <p><strong id="versionModalLabel">Versão 1.2.4</strong></p>
@@ -314,7 +308,7 @@
             <div class="terms-modal-footer">
                 <button id="closeVersionFooter" class="primary-button" type="button">Fechar</button>
             </div>
-        </div>
+        </section>
     </div>
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>

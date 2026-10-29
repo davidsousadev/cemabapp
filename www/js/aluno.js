@@ -136,6 +136,8 @@
             salvarDesvinculosPendentes(restantes);
             return restantes.length === 0;
         })().finally(function () { pendingUnlinkPromise = null; });
+        return pendingUnlinkPromise;
+    }
     function renderizarListaAlunos() {
         const list = byId('linkedStudentsList');
         const empty = byId('linkedStudentsEmpty');
@@ -155,9 +157,6 @@
         });
     }
 
-
-        return pendingUnlinkPromise;
-    }
     function formatarMatricula(value) {
         const text = String(value || '').trim();
         const digits = text.replace(/\D/g, '');
@@ -173,13 +172,32 @@
         if (byId('studentPageDescription')) byId('studentPageDescription').textContent = aluno
             ? 'Confira o aluno associado a este dispositivo ou encerre o vínculo abaixo.'
             : 'Para proteger as informações escolares, confirme os dados do aluno para continuar.';
+        const alunosVinculados = lerAlunos();
         if (aluno) {
             byId('linkedStudentName').textContent = aluno.nome_completo;
             byId('linkedStudentEnrollment').textContent = formatarMatricula(aluno.matricula);
-            const firstName = String(aluno.nome_completo).trim().split(/\s+/)[0];
-            if (byId('homeGreeting')) byId('homeGreeting').textContent = 'Olá, família de ' + firstName + '!';
-            if (byId('homeDescription')) byId('homeDescription').textContent = 'Acompanhe por aqui as notificações escolares de ' + aluno.nome_completo + '.';
-            if (byId('homeStudentSummary')) byId('homeStudentSummary').textContent = aluno.nome_completo + ' · Matrícula ' + formatarMatricula(aluno.matricula);
+            const nomes = alunosVinculados.map(function (item) { return String(item.nome_completo || '').trim().split(/\s+/)[0]; }).filter(Boolean);
+            const saudacao = nomes.length > 1 ? 'Olá, família de ' + nomes.join(', ') + '!' : 'Olá, família de ' + (nomes[0] || String(aluno.nome_completo).trim().split(/\s+/)[0]) + '!';
+            if (byId('homeGreeting')) byId('homeGreeting').textContent = saudacao;
+            if (byId('homeDescription')) byId('homeDescription').textContent = 'Acompanhe por aqui as notificações escolares de ' + alunosVinculados.map(function (item) { return item.nome_completo; }).join(', ') + '.';
+            if (byId('homeStudentSummary')) byId('homeStudentSummary').textContent = alunosVinculados.map(function (item) { return item.nome_completo + ' · Matrícula ' + formatarMatricula(item.matricula); }).join(' | ');
+            // Lista de alunos da família na tela de aluno vinculado.
+            const block = byId('linkedFamilyBlock');
+            const list = byId('linkedFamilyList');
+            if (list) {
+                list.replaceChildren();
+                alunosVinculados.forEach(function (item) {
+                    const li = document.createElement('li');
+                    li.className = 'linked-student-item';
+                    const name = document.createElement('span');
+                    name.textContent = item.nome_completo;
+                    const mat = document.createElement('small');
+                    mat.textContent = formatarMatricula(item.matricula);
+                    li.append(name, mat);
+                    list.appendChild(li);
+                });
+            }
+            if (block) block.hidden = alunosVinculados.length <= 1;
         } else {
             if (byId('homeGreeting')) byId('homeGreeting').textContent = 'Bem-vindo ao CEMAB.';
             if (byId('homeDescription')) byId('homeDescription').textContent = 'Acompanhe os avisos da escola e receba alertas importantes sobre o acompanhamento escolar.';
@@ -192,6 +210,14 @@
 
     function aplicarEstadoAcesso(destino) {
         const aluno = renderizarVinculo();
+        if (byId('studentFormPanel')) byId('studentFormPanel').hidden = !!aluno;
+        if (byId('studentLinkedPanel')) byId('studentLinkedPanel').hidden = !aluno;
+        if (byId('studentHelpNote')) byId('studentHelpNote').hidden = !!aluno;
+        const nav = byId('bottomNavigation');
+        if (nav) nav.hidden = !aluno;
+        document.querySelectorAll('[data-requires-link]').forEach(function (botao) { botao.hidden = !aluno; });
+        const btn = byId('unlinkStudentButton');
+        if (btn) btn.textContent = 'Sair e desvincular aluno';
         if (typeof navegarPara === 'function') navegarPara(aluno ? (destino || 'inicio') : 'aluno');
     }
 
@@ -317,6 +343,10 @@
             mostrarMensagem('studentFormMessage', '', '');
             mostrarMensagem('unlinkMessage', '', '');
             aplicarEstadoAcesso('inicio');
+            const navPos = byId('bottomNavigation');
+            if (navPos) navPos.hidden = false;
+            document.querySelectorAll('[data-requires-link]').forEach(function (botao) { botao.hidden = false; });
+            if (typeof navegarPara === 'function') navegarPara('inicio');
             if (window.CemabNotifications) {
                 await CemabNotifications.syncHistory();
                 await CemabNotifications.refresh();
@@ -334,51 +364,65 @@
     }
 
     async function desvincular() {
-        const aluno = lerVinculo();
-        if (!aluno) return;
-        const confirmar = window.confirm('Deseja sair e remover o vínculo deste aluno deste dispositivo? O histórico local de notificações também será apagado.');
-        if (!confirmar) return;
         const token = localStorage.getItem(TOKEN_KEY) || '';
+        let alunos = lerAlunos();
+        // Garante a remoção de todos os vínculos gravados no servidor, inclusive irmãos.
+        if (token && window.CemabApi) {
+            try {
+                const remoto = await CemabApi.request(APP_CONFIG.STUDENT_LINKS_ENDPOINT, { headers: { 'X-FCM-Token': token } });
+                if (remoto && remoto.success && Array.isArray(remoto.alunos) && remoto.alunos.length) {
+                    const porMatricula = new Map(alunos.map(a => [normalizarMatriculaLocal(a.matricula), a]));
+                    alunos = remoto.alunos.map(item => ({
+                        id: item.id,
+                        matricula: String(item.matricula || '').trim(),
+                        nome_completo: String(item.nome_completo || '').trim(),
+                        vinculado_em: (porMatricula.get(normalizarMatriculaLocal(item.matricula)) || {}).vinculado_em || new Date().toISOString()
+                    }));
+                }
+            } catch (e) { /* mantém lista local */ }
+        }
+        if (!alunos.length) return;
+        const confirmar = window.confirm('Deseja sair e remover o vínculo de todos os alunos deste dispositivo? O histórico local de notificações também será apagado.');
+        if (!confirmar) return;
         const button = byId('unlinkStudentButton');
-        button.disabled = true;
-        button.textContent = 'Encerrando vínculo…';
-        let removidoNoServidor = false;
-        try {
-            if (token && window.CemabApi) {
+        if (button) { button.disabled = true; button.textContent = 'Encerrando vínculo…'; }
+        let removidoNoServidor = true;
+        if (token && window.CemabApi) {
+            for (const aluno of alunos) {
                 try {
                     await CemabApi.postJson(APP_CONFIG.STUDENT_UNLINK_ENDPOINT, { matricula: aluno.matricula, token: token });
-                    removidoNoServidor = true;
                 } catch (error) {
-                    // O usuário deve conseguir sair mesmo offline. A remoção remota fica em fila.
+                    removidoNoServidor = false;
                     registrarDesvinculoPendente(aluno, token);
                     console.warn('Desvinculação será sincronizada quando houver conexão.', error);
                 }
-            } else {
-                registrarDesvinculoPendente(aluno, token);
             }
-
-            localStorage.removeItem(STORAGE_KEY);
-            if (window.CemabNotificationStore && window.CemabNotificationStore.clear) {
-                try { await CemabNotificationStore.clear(); }
-                catch (clearError) { console.warn('Não foi possível limpar o histórico local neste momento.', clearError); }
-            }
-            aplicarEstadoAcesso('aluno');
-            mostrarMensagem('studentFormMessage', removidoNoServidor
-                ? 'Você saiu e o vínculo foi removido deste dispositivo.'
-                : 'Você saiu deste dispositivo. A remoção no servidor será sincronizada quando houver conexão.', 'success');
-        } catch (error) {
-            // Falhas de armazenamento são registradas; mantém a interface utilizável.
-            console.error('Falha ao concluir o encerramento local do vínculo:', error);
-            mostrarMensagem('unlinkMessage', 'Você saiu, mas alguns dados locais não puderam ser limpos.', 'error');
-        } finally {
-            button.disabled = false;
-            button.textContent = 'Sair e desvincular aluno';
+        } else {
+            alunos.forEach(function (aluno) { registrarDesvinculoPendente(aluno, token); });
+            removidoNoServidor = false;
         }
+
+        // Limpa todos os dados locais, mesmo que o servidor não tenha respondido.
+        try { localStorage.removeItem(STORAGE_KEY); } catch (_) { /* ignora */ }
+        try { localStorage.removeItem(STUDENTS_KEY); } catch (_) { /* ignora */ }
+        try { localStorage.removeItem(PENDING_UNLINK_KEY); } catch (_) { /* ignora */ }
+        try { localStorage.removeItem(TERMS_ACCEPTED_KEY); } catch (_) { /* ignora */ }
+        if (window.CemabNotificationStore && window.CemabNotificationStore.clear) {
+            try { await CemabNotificationStore.clear(); }
+            catch (clearError) { console.warn('Não foi possível limpar o histórico local neste momento.', clearError); }
+        }
+        aplicarEstadoAcesso('aluno');
+        mostrarMensagem('studentFormMessage', removidoNoServidor
+            ? 'Você saiu e os vínculos foram removidos deste dispositivo.'
+            : 'Você saiu deste dispositivo. A remoção no servidor será sincronizada quando houver conexão.', 'success');
+        if (button) { button.disabled = false; button.textContent = 'Sair e desvincular aluno'; }
     }
 
     function inicializar() {
         byId('studentLinkForm').addEventListener('submit', vincular);
         byId('unlinkStudentButton').addEventListener('click', desvincular);
+        const btnInit = byId('unlinkStudentButton');
+        if (btnInit) btnInit.textContent = 'Sair e desvincular aluno';
         const aluno = renderizarVinculo();
         aplicarEstadoAcesso(aluno ? 'inicio' : 'aluno');
     }

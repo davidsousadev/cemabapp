@@ -8,6 +8,8 @@
             botao.addEventListener('click', function () { navegarPara(botao.getAttribute('data-go-page')); });
         });
         const linked = window.CemabAuth && window.CemabAuth.isLinked();
+        const nav = document.getElementById('bottomNavigation');
+        if (nav) nav.hidden = !linked;
         navegarPara(linked ? 'inicio' : 'aluno');
     }
 
@@ -25,7 +27,7 @@
             else botao.removeAttribute('aria-current');
         });
         const nav = document.getElementById('bottomNavigation');
-        if (nav) nav.hidden = false;
+        if (nav) nav.hidden = !linked;
         document.querySelectorAll('[data-requires-link]').forEach(function (botao) {
             botao.hidden = !linked;
         });
